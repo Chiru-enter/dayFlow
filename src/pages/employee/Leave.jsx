@@ -3,6 +3,8 @@ import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
 import Button from '../../components/Button';
 import StatusBadge from '../../components/StatusBadge';
+import Loading from '../../components/Loading';
+import { useAuth } from '../../context/AuthContext';
 import { getMyLeaveRequests, submitLeaveRequest } from '../../services/leaveService';
 
 const defaultForm = {
@@ -12,17 +14,21 @@ const defaultForm = {
   remarks: '',
 };
 
-function Leave({ userId }) {
+function Leave() {
+  const { user, loading: authLoading } = useAuth();
+  const userId = user?.uid;
   const [form, setForm] = useState(defaultForm);
   const [leaveHistory, setLeaveHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const loadLeaveRequests = async (currentUserId) => {
     if (!currentUserId) {
       setLeaveHistory([]);
       setError('');
+      setSuccessMessage('');
       return;
     }
 
@@ -39,12 +45,26 @@ function Leave({ userId }) {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     loadLeaveRequests(userId);
-  }, [userId]);
+  }, [authLoading, userId]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
+    setError('');
+  };
+
+  const validateForm = () => {
+    if (!form.type || !form.startDate || !form.endDate || !form.remarks.trim()) {
+      return 'Please complete all fields before submitting.';
+    }
+
+    if (new Date(form.endDate) < new Date(form.startDate)) {
+      return 'End date must be on or after the start date.';
+    }
+
+    return '';
   };
 
   const handleSubmit = async (event) => {
@@ -55,11 +75,19 @@ function Leave({ userId }) {
       return;
     }
 
+    const validationMessage = validateForm();
+    if (validationMessage) {
+      setError(validationMessage);
+      return;
+    }
+
     try {
       setSubmitting(true);
       setError('');
+      setSuccessMessage('');
       await submitLeaveRequest(userId, form);
       setForm(defaultForm);
+      setSuccessMessage('Leave request submitted successfully.');
       await loadLeaveRequests(userId);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Leave request failed.');
@@ -68,7 +96,19 @@ function Leave({ userId }) {
     }
   };
 
-  if (!userId) {
+  if (authLoading) {
+    return (
+      <div className="employee-page-shell">
+        <Sidebar />
+        <main className="employee-main-panel">
+          <Navbar title="Leave" />
+          <Loading message="Checking your session..." />
+        </main>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <div className="employee-page-shell">
         <Sidebar />
@@ -79,6 +119,8 @@ function Leave({ userId }) {
       </div>
     );
   }
+
+  const isSubmitDisabled = submitting || !form.type || !form.startDate || !form.endDate || !form.remarks.trim();
 
   return (
     <div className="employee-page-shell">
@@ -95,11 +137,17 @@ function Leave({ userId }) {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <div className="leave-form-grid">
               <div className="field-group">
                 <label htmlFor="leave-type">Leave type</label>
-                <select id="leave-type" name="type" value={form.type} onChange={handleChange}>
+                <select
+                  id="leave-type"
+                  name="type"
+                  value={form.type}
+                  onChange={handleChange}
+                  aria-invalid={!form.type}
+                >
                   <option>Paid Leave</option>
                   <option>Sick Leave</option>
                   <option>Unpaid Leave</option>
@@ -114,6 +162,7 @@ function Leave({ userId }) {
                   type="date"
                   value={form.startDate}
                   onChange={handleChange}
+                  aria-invalid={!form.startDate}
                 />
               </div>
 
@@ -125,6 +174,7 @@ function Leave({ userId }) {
                   type="date"
                   value={form.endDate}
                   onChange={handleChange}
+                  aria-invalid={!form.endDate}
                 />
               </div>
 
@@ -136,14 +186,25 @@ function Leave({ userId }) {
                   rows="4"
                   value={form.remarks}
                   onChange={handleChange}
+                  aria-invalid={!form.remarks.trim()}
                 />
               </div>
             </div>
 
-            {error && <div className="empty-state error-state">{error}</div>}
+            {error && (
+              <div className="empty-state error-state" role="alert">
+                {error}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="empty-state success-state" role="status">
+                {successMessage}
+              </div>
+            )}
 
             <div className="leave-actions">
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={isSubmitDisabled} aria-label="Submit leave request">
                 {submitting ? 'Submitting...' : 'Submit request'}
               </Button>
             </div>
@@ -165,7 +226,7 @@ function Leave({ userId }) {
           ) : (
             <div className="leave-history-list">
               {leaveHistory.map((item) => {
-                const tone = item.status === 'Approved' ? 'success' : item.status === 'Pending' ? 'warning' : 'danger';
+                const tone = item.status === 'Approved' || item.status === 'approved' ? 'success' : item.status === 'Pending' || item.status === 'pending' ? 'warning' : 'danger';
                 return (
                   <div key={item.id || `${item.type}-${item.startDate}`} className="leave-history-row">
                     <div>

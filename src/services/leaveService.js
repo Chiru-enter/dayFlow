@@ -37,7 +37,7 @@ export const submitLeaveRequest = async (userId, leaveData = {}) => {
     startDate: leaveData.startDate || '',
     endDate: leaveData.endDate || '',
     remarks: leaveData.remarks || '',
-    status: 'Pending',
+    status: 'pending',
     adminComment: '',
     updatedAt: serverTimestamp(),
   };

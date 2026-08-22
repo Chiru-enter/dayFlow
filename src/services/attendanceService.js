@@ -1,11 +1,11 @@
 import {
   collection,
+  getDoc,
   getDocs,
   query,
   where,
   doc,
   updateDoc,
-  addDoc,
   setDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase/firestore';
@@ -13,6 +13,8 @@ import { db } from '../firebase/firestore';
 const ATTENDANCE_COLLECTION = 'attendance';
 
 const getTodayKey = () => new Date().toISOString().slice(0, 10);
+
+const getAttendanceDocRef = (userId, dateKey) => doc(db, ATTENDANCE_COLLECTION, `${userId}_${dateKey}`);
 
 const getDateRange = () => {
   const today = new Date();
@@ -73,22 +75,31 @@ export const checkIn = async (userId) => {
   }
 
   const todayKey = getTodayKey();
-  const todayAttendance = await getTodayAttendance(userId);
+  const attendanceRef = getAttendanceDocRef(userId, todayKey);
+  const existingRecord = await getDoc(attendanceRef);
+  const checkInTime = new Date().toISOString();
 
-  if (todayAttendance) {
-    const attendanceRef = doc(db, ATTENDANCE_COLLECTION, todayAttendance.id);
+  if (existingRecord.exists()) {
+    const currentData = existingRecord.data();
+    const nextCheckIn = currentData.checkIn || checkInTime;
+
     await updateDoc(attendanceRef, {
-      checkIn: new Date().toISOString(),
+      checkIn: nextCheckIn,
       status: 'Present',
     });
-    return { ...todayAttendance, checkIn: new Date().toISOString(), status: 'Present' };
+
+    return {
+      id: attendanceRef.id,
+      ...currentData,
+      checkIn: nextCheckIn,
+      status: 'Present',
+    };
   }
 
-  const attendanceRef = doc(collection(db, ATTENDANCE_COLLECTION));
   const payload = {
     userId,
     date: todayKey,
-    checkIn: new Date().toISOString(),
+    checkIn: checkInTime,
     checkOut: null,
     status: 'Present',
   };
@@ -102,13 +113,14 @@ export const checkOut = async (userId) => {
     throw new Error('Please sign in to check out.');
   }
 
-  const todayAttendance = await getTodayAttendance(userId);
+  const todayKey = getTodayKey();
+  const attendanceRef = getAttendanceDocRef(userId, todayKey);
+  const existingRecord = await getDoc(attendanceRef);
 
-  if (!todayAttendance) {
+  if (!existingRecord.exists()) {
     throw new Error('No check-in record found for today.');
   }
 
-  const attendanceRef = doc(db, ATTENDANCE_COLLECTION, todayAttendance.id);
   const checkOutTime = new Date().toISOString();
 
   await updateDoc(attendanceRef, {
@@ -117,7 +129,8 @@ export const checkOut = async (userId) => {
   });
 
   return {
-    ...todayAttendance,
+    id: attendanceRef.id,
+    ...existingRecord.data(),
     checkOut: checkOutTime,
     status: 'Present',
   };

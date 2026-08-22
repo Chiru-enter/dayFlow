@@ -4,13 +4,17 @@ import Sidebar from '../../components/Sidebar';
 import StatusBadge from '../../components/StatusBadge';
 import Button from '../../components/Button';
 import Loading from '../../components/Loading';
+import { useAuth } from '../../context/AuthContext';
 import { checkIn, checkOut, getTodayAttendance, getWeeklyAttendance } from '../../services/attendanceService';
 
-function Attendance({ userId }) {
+function Attendance() {
+  const { user, loading: authLoading } = useAuth();
+  const userId = user?.uid;
   const [todayRecord, setTodayRecord] = useState(null);
   const [weeklyRecords, setWeeklyRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   const loadAttendance = async (currentUserId) => {
@@ -18,6 +22,7 @@ function Attendance({ userId }) {
       setTodayRecord(null);
       setWeeklyRecords([]);
       setError('');
+      setSuccessMessage('');
       return;
     }
 
@@ -40,8 +45,12 @@ function Attendance({ userId }) {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     loadAttendance(userId);
-  }, [userId]);
+  }, [authLoading, userId]);
+
+  const canCheckIn = !todayRecord || !todayRecord.checkIn;
+  const canCheckOut = !!todayRecord && !!todayRecord.checkIn && !todayRecord.checkOut;
 
   const handleCheckIn = async () => {
     if (!userId) {
@@ -49,11 +58,18 @@ function Attendance({ userId }) {
       return;
     }
 
+    if (!canCheckIn) {
+      setSuccessMessage('You have already checked in for today.');
+      return;
+    }
+
     try {
       setActionLoading(true);
       setError('');
+      setSuccessMessage('');
       const updatedRecord = await checkIn(userId);
       setTodayRecord(updatedRecord);
+      setSuccessMessage('Checked in successfully.');
       await loadAttendance(userId);
     } catch (checkInError) {
       setError(checkInError instanceof Error ? checkInError.message : 'Check-in failed.');
@@ -68,11 +84,18 @@ function Attendance({ userId }) {
       return;
     }
 
+    if (!canCheckOut) {
+      setSuccessMessage('You have already checked out for today or have not checked in yet.');
+      return;
+    }
+
     try {
       setActionLoading(true);
       setError('');
+      setSuccessMessage('');
       const updatedRecord = await checkOut(userId);
       setTodayRecord(updatedRecord);
+      setSuccessMessage('Checked out successfully.');
       await loadAttendance(userId);
     } catch (checkOutError) {
       setError(checkOutError instanceof Error ? checkOutError.message : 'Check-out failed.');
@@ -81,7 +104,19 @@ function Attendance({ userId }) {
     }
   };
 
-  if (!userId) {
+  if (authLoading) {
+    return (
+      <div className="employee-page-shell">
+        <Sidebar />
+        <main className="employee-main-panel">
+          <Navbar title="Attendance" />
+          <Loading message="Checking your session..." />
+        </main>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <div className="employee-page-shell">
         <Sidebar />
@@ -100,18 +135,6 @@ function Attendance({ userId }) {
         <main className="employee-main-panel">
           <Navbar title="Attendance" />
           <Loading message="Loading attendance data..." />
-        </main>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="employee-page-shell">
-        <Sidebar />
-        <main className="employee-main-panel">
-          <Navbar title="Attendance" />
-          <div className="empty-state error-state">{error}</div>
         </main>
       </div>
     );
@@ -154,11 +177,23 @@ function Attendance({ userId }) {
             </div>
           </div>
 
+          {error && (
+            <div className="empty-state error-state" role="alert">
+              {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="empty-state success-state" role="status">
+              {successMessage}
+            </div>
+          )}
+
           <div className="inline-actions">
-            <Button onClick={handleCheckIn} disabled={actionLoading}>
+            <Button onClick={handleCheckIn} disabled={actionLoading || !canCheckIn} aria-label="Check in for today">
               {actionLoading ? 'Processing...' : 'Check in'}
             </Button>
-            <Button variant="secondary" onClick={handleCheckOut} disabled={actionLoading}>
+            <Button variant="secondary" onClick={handleCheckOut} disabled={actionLoading || !canCheckOut} aria-label="Check out for today">
               Check out
             </Button>
           </div>

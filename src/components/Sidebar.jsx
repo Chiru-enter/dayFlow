@@ -1,10 +1,11 @@
+import { NavLink } from 'react-router-dom';
+
 const defaultItems = [
-  { label: 'Overview', active: true },
-  { label: 'Attendance' },
-  { label: 'Leave' },
-  { label: 'Payroll' },
-  { label: 'Profile' },
-  { label: 'Reports' },
+  { label: 'Overview', path: '/employee' },
+  { label: 'Attendance', path: '/employee/attendance' },
+  { label: 'Leave', path: '/employee/leave' },
+  { label: 'Payroll', path: '/employee/payroll' },
+  { label: 'Profile', path: '/employee/profile' },
 ];
 
 function Sidebar({ items = defaultItems, title = 'Dayflow' }) {
@@ -20,21 +21,16 @@ function Sidebar({ items = defaultItems, title = 'Dayflow' }) {
 
       <nav className="side-nav" aria-label="Sidebar navigation">
         {items.map((item) => (
-          <button
+          <NavLink
             key={item.label}
-            type="button"
-            className={`nav-item ${item.active ? 'active' : ''}`}
+            to={item.path}
+            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
           >
             {item.label}
-          </button>
+          </NavLink>
         ))}
       </nav>
 
-      <div className="sidebar-summary">
-        <p>Work status</p>
-        <strong>78%</strong>
-        <span>Productivity this month</span>
-      </div>
     </aside>
   );
 }

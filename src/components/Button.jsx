@@ -4,12 +4,14 @@ function Button({
   variant = 'primary',
   className = '',
   disabled = false,
+  ...props
 }) {
   return (
     <button
       type={type}
       className={`custom-button ${variant} ${className}`.trim()}
       disabled={disabled}
+      {...props}
     >
       {children}
     </button>

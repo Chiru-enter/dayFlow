@@ -168,6 +168,66 @@
   padding: 8px 12px;
 }
 
+.account-menu {
+  position: relative;
+}
+
+.account-button {
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-button:hover,
+.account-button:focus-visible {
+  border-color: #b9c8c1;
+  background: #f8fafc;
+  outline: none;
+}
+
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  display: grid;
+  gap: 6px;
+  min-width: 220px;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+.account-dropdown strong {
+  color: #111827;
+}
+
+.account-dropdown small {
+  color: #6b7280;
+  overflow-wrap: anywhere;
+}
+
+.account-dropdown button {
+  margin-top: 8px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #111827;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-dropdown button:hover,
+.account-dropdown button:focus-visible {
+  background: #e5e7eb;
+  outline: none;
+}
+
 .avatar {
   width: 36px;
   height: 36px;
@@ -859,6 +919,30 @@
 .badge-success {
   background: #edf9f2;
   color: #1f7a5c;
+
+.payroll-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.payroll-info-item {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.payroll-info-item strong {
+  color: #111827;
+}
+
+.dashboard-link {
+  display: inline-block;
+  margin-top: 18px;
+  text-decoration: none;
+}
 }
 
 .badge-warning {
@@ -1056,7 +1140,8 @@
   .lower-grid,
   .stats-grid,
   .employee-content-grid,
-  .employee-lower-grid {
+  .employee-lower-grid,
+  .payroll-profile-grid {
     grid-template-columns: 1fr;
   }
 

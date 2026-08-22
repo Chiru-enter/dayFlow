@@ -1,13 +1,7 @@
-<<<<<<< Updated upstream
 import './App.css';
-import AppRoutes from './routes/AppRoutes.jsx';
-
-function App() {
-  return <AppRoutes />;
-=======
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import AppRoutes from './routes/AppRoutes';
+import AppRoutes from './routes/AppRoutes.jsx';
 
 function App() {
   return (
@@ -17,7 +11,6 @@ function App() {
       </AuthProvider>
     </BrowserRouter>
   );
->>>>>>> Stashed changes
 }
 
 export default App;

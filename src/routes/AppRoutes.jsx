@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
 import Login from '../pages/auth/Login';
@@ -18,7 +18,7 @@ import PayrollManagement from '../pages/admin/PayrollManagement';
 function AppRoutes() {
   const { user } = useAuth();
   const home = user ? `/${user.role}` : '/login';
-  return <BrowserRouter><Routes>
+  return <Routes>
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
     <Route element={<ProtectedRoute allowedRoles={['employee']} />}>
@@ -38,7 +38,7 @@ function AppRoutes() {
     </Route>
     <Route path="/" element={<Navigate to={home} replace />} />
     <Route path="*" element={<Navigate to={home} replace />} />
-  </Routes></BrowserRouter>;
+  </Routes>;
 }
 
 export default AppRoutes;

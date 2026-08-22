@@ -98,9 +98,17 @@ function EmployeeDetails() {
       setMessage({ type: '', text: '' });
 
       const docRef = doc(firestoreDb, 'users', employeeId);
-      await updateDoc(docRef, formData);
+      const editableFields = {
+        name: formData.name || '',
+        phone: formData.phone || '',
+        address: formData.address || '',
+        jobTitle: formData.jobTitle || '',
+        department: formData.department || '',
+        joinDate: formData.joinDate || '',
+      };
+      await updateDoc(docRef, editableFields);
 
-      setEmployee(formData);
+      setEmployee((current) => ({ ...current, ...editableFields }));
       setIsEditing(false);
       setMessage({
         type: 'success',
@@ -330,30 +338,14 @@ function EmployeeDetails() {
               }}>
                 Email
               </label>
-              {isEditing ? (
-                <input
-                  type="email"
-                  value={formData.email || ''}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    fontSize: '0.9rem',
-                    fontFamily: 'inherit',
-                  }}
-                />
-              ) : (
-                <div style={{
+              <div style={{
                   padding: '10px 12px',
                   background: '#f9fafb',
                   borderRadius: '8px',
                   color: '#111827',
                 }}>
-                  {employee.email || 'N/A'}
-                </div>
-              )}
+                {employee.email || 'N/A'}
+              </div>
             </div>
 
             {/* Phone - Editable */}
@@ -553,36 +545,38 @@ function EmployeeDetails() {
               }}>
                 Role
               </label>
-              {isEditing ? (
-                <select
-                  value={formData.role || 'employee'}
-                  onChange={(e) => handleInputChange('role', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    fontSize: '0.9rem',
-                    fontFamily: 'inherit',
-                  }}
-                >
-                  <option value="employee">Employee</option>
-                  <option value="admin">Admin</option>
-                </select>
-              ) : (
-                <div style={{
+              <div style={{
                   padding: '10px 12px',
                   background: '#f9fafb',
                   borderRadius: '8px',
                   color: '#111827',
                   textTransform: 'capitalize',
                 }}>
-                  {employee.role || 'employee'}
-                </div>
-              )}
+                {employee.role || 'employee'}
+              </div>
             </div>
           </div>
         </section>
+
+        {employee.salary && (
+          <section className="panel" style={{ marginTop: '24px' }}>
+            <div className="panel-header">
+              <div>
+                <p className="eyebrow">Compensation</p>
+                <h3>Salary information</h3>
+              </div>
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '16px',
+            }}>
+              <SalaryValue label="Base salary" value={employee.salary.base} />
+              <SalaryValue label="Allowances" value={employee.salary.allowances} />
+              <SalaryValue label="Deductions" value={employee.salary.deductions} />
+            </div>
+          </section>
+        )}
 
         {/* Back Button */}
         <div style={{ marginTop: '24px' }}>
@@ -594,6 +588,20 @@ function EmployeeDetails() {
           </Button>
         </div>
       </main>
+    </div>
+  );
+}
+
+function SalaryValue({ label, value }) {
+  return (
+    <div style={{
+      padding: '10px 12px',
+      background: '#f9fafb',
+      borderRadius: '8px',
+      color: '#111827',
+    }}>
+      <span style={{ display: 'block', color: '#6b7280', fontSize: '0.8rem', marginBottom: '6px' }}>{label}</span>
+      <strong>{typeof value === 'number' ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value) : value || 'N/A'}</strong>
     </div>
   );
 }

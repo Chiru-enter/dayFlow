@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-const defaultItems = [
+const employeeItems = [
   { label: 'Overview', path: '/employee' },
   { label: 'Attendance', path: '/employee/attendance' },
   { label: 'Leave', path: '/employee/leave' },
@@ -8,7 +9,18 @@ const defaultItems = [
   { label: 'Profile', path: '/employee/profile' },
 ];
 
-function Sidebar({ items = defaultItems, title = 'Dayflow' }) {
+const adminItems = [
+  { label: 'Overview', path: '/admin' },
+  { label: 'Employees', path: '/admin/employees' },
+  { label: 'Attendance', path: '/admin/attendance' },
+  { label: 'Leave', path: '/admin/leave' },
+  { label: 'Payroll', path: '/admin/payroll' },
+];
+
+function Sidebar({ items, title = 'Dayflow' }) {
+  const { user } = useAuth();
+  const navigationItems = items || (user?.role === 'admin' ? adminItems : employeeItems);
+
   return (
     <aside className="employee-sidebar">
       <div className="brand-block">
@@ -20,7 +32,7 @@ function Sidebar({ items = defaultItems, title = 'Dayflow' }) {
       </div>
 
       <nav className="side-nav" aria-label="Sidebar navigation">
-        {items.map((item) => (
+        {navigationItems.map((item) => (
           <NavLink
             key={item.label}
             to={item.path}

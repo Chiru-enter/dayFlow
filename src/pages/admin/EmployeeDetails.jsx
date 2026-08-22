@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../../firebase/auth';
+import { auth } from '../../firebase/auth';
 import { db as firestoreDb } from '../../firebase/firestore';
 import Sidebar from '../../components/Sidebar';
 import Navbar from '../../components/Navbar';

@@ -10,6 +10,7 @@ import Payroll from '../pages/employee/Payroll';
 import Profile from '../pages/employee/Profile';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import Employees from '../pages/admin/Employees';
+import EmployeeDetails from '../pages/admin/EmployeeDetails';
 import AttendanceManagement from '../pages/admin/AttendanceManagement';
 import LeaveManagement from '../pages/admin/LeaveManagement';
 import PayrollManagement from '../pages/admin/PayrollManagement';
@@ -30,6 +31,7 @@ function AppRoutes() {
     <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/admin/employees" element={<Employees />} />
+      <Route path="/admin/employees/:employeeId" element={<EmployeeDetails />} />
       <Route path="/admin/attendance" element={<AttendanceManagement />} />
       <Route path="/admin/leave" element={<LeaveManagement />} />
       <Route path="/admin/payroll" element={<PayrollManagement />} />

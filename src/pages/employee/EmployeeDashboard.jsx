@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -55,6 +56,59 @@ function EmployeeDashboard() {
     </div>
     <section className="panel full-width-panel"><div className="panel-header"><div><p className="eyebrow">Payroll</p><h3>Salary information</h3></div></div>{hasSalary ? <div className="payroll-card"><div><span className="muted-label">Base salary</span><strong>{salary.base ?? '—'}</strong></div><div><span className="muted-label">Allowances</span><strong>{salary.allowances ?? '—'}</strong></div><div><span className="muted-label">Deductions</span><strong>{salary.deductions ?? '—'}</strong></div></div> : <div className="empty-state">Payroll information is not available yet.</div>}</section>
   </DashboardFrame>;
+=======
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+
+const styles = {
+  page: { minHeight: "100vh", padding: "40px 24px", background: "#f5f7fb", color: "#172033", textAlign: "left" },
+  shell: { maxWidth: "1080px", margin: "0 auto" },
+  eyebrow: { margin: "0 0 8px", color: "#2563eb", fontSize: "13px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" },
+  title: { margin: 0, color: "#172033", fontSize: "32px", lineHeight: 1.2 },
+  subtitle: { margin: "10px 0 28px", color: "#64748b", fontSize: "16px" },
+  cards: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "16px", marginBottom: "26px" },
+  card: { background: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "20px", boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)" },
+  label: { margin: "0 0 14px", color: "#64748b", fontSize: "14px", fontWeight: 700 },
+  value: { margin: 0, color: "#172033", fontSize: "24px", fontWeight: 700 },
+  note: { margin: "8px 0 0", color: "#64748b", fontSize: "14px" },
+  actions: { display: "flex", flexWrap: "wrap", gap: "12px" },
+  link: { display: "inline-flex", padding: "11px 16px", borderRadius: "6px", background: "#2563eb", color: "#fff", textDecoration: "none", fontWeight: 700 },
+  secondaryLink: { background: "#e8eefc", color: "#1d4ed8" },
+};
+
+function EmployeeDashboard() {
+  const { user, userProfile, loading } = useAuth();
+
+  if (loading) return <main style={styles.page}><div style={styles.shell}><p>Loading your dashboard...</p></div></main>;
+
+  const name = userProfile?.name || user?.displayName || "there";
+  const salary = userProfile?.salary || {};
+  const netSalary = (Number(salary.base) || 0) + (Number(salary.allowances) || 0) - (Number(salary.deductions) || 0);
+  const formattedSalary = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(netSalary);
+
+  return (
+    <main style={styles.page}>
+      <div style={styles.shell}>
+        <p style={styles.eyebrow}>Employee dashboard</p>
+        <h1 style={styles.title}>Good morning, {name}</h1>
+        <p style={styles.subtitle}>Here is your latest workplace overview.</p>
+        <section style={styles.cards} aria-label="Workplace overview">
+          <article style={styles.card}><p style={styles.label}>Today's attendance</p><p style={styles.value}>Not checked in</p><p style={styles.note}>Attendance status will appear here when available.</p></article>
+          <article style={styles.card}><p style={styles.label}>Leave status</p><p style={styles.value}>Unavailable</p><p style={styles.note}>Your leave requests will appear here when available.</p></article>
+          <article style={styles.card}><p style={styles.label}>Net salary</p><p style={styles.value}>{formattedSalary}</p><p style={styles.note}>Based on your current salary profile.</p></article>
+        </section>
+        <section style={styles.card} aria-labelledby="quick-actions">
+          <h2 id="quick-actions" style={{ margin: "0 0 16px", color: "#172033", fontSize: "19px" }}>Quick actions</h2>
+          <div style={styles.actions}>
+            <Link to="/employee/attendance" style={styles.link}>Check in</Link>
+            <Link to="/employee/leave" style={{ ...styles.link, ...styles.secondaryLink }}>Apply leave</Link>
+            <Link to="/employee/profile" style={{ ...styles.link, ...styles.secondaryLink }}>View profile</Link>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+>>>>>>> Stashed changes
 }
 
 function DashboardFrame({ children, user }) {

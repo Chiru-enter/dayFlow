@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   markAllNotificationsAsRead,
@@ -15,6 +16,7 @@ const formatNotificationTime = (createdAt) => {
 
 function NotificationBell() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
@@ -45,14 +47,19 @@ function NotificationBell() {
   const unreadCount = notifications.filter((notification) => !notification.read).length;
 
   const handleRead = async (notification) => {
-    if (notification.read) return;
-    try {
-      await markNotificationAsRead(notification.id, user.uid);
-      setNotifications((current) => current.map((item) => (
-        item.id === notification.id ? { ...item, read: true } : item
-      )));
-    } catch {
-      setError('Unable to mark notification as read.');
+    if (!notification.read) {
+      try {
+        await markNotificationAsRead(notification.id, user.uid);
+        setNotifications((current) => current.map((item) => (
+          item.id === notification.id ? { ...item, read: true } : item
+        )));
+      } catch {
+        setError('Unable to mark notification as read.');
+      }
+    }
+    if (notification.link) {
+      setOpen(false);
+      navigate(notification.link);
     }
   };
 

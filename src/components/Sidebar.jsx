@@ -7,6 +7,7 @@ const employeeItems = [
   { label: 'Leave', path: '/employee/leave' },
   { label: 'Payroll', path: '/employee/payroll' },
   { label: 'Profile', path: '/employee/profile' },
+  { label: 'Employee Concerns', path: '/employee/concerns' },
 ];
 
 const adminItems = [
@@ -15,6 +16,7 @@ const adminItems = [
   { label: 'Attendance', path: '/admin/attendance' },
   { label: 'Leave', path: '/admin/leave' },
   { label: 'Payroll', path: '/admin/payroll' },
+  { label: 'Employee Concerns', path: '/admin/concerns' },
 ];
 
 function Sidebar({ items, title = 'Dayflow' }) {

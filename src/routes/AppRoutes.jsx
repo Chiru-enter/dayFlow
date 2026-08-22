@@ -7,6 +7,7 @@ import EmployeeDashboard from '../pages/employee/EmployeeDashboard';
 import Attendance from '../pages/employee/Attendance';
 import Leave from '../pages/employee/Leave';
 import Payroll from '../pages/employee/Payroll';
+import EmployeeConcerns from '../pages/employee/Concerns';
 import Profile from '../pages/employee/Profile';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import Employees from '../pages/admin/Employees';
@@ -14,6 +15,7 @@ import EmployeeDetails from '../pages/admin/EmployeeDetails';
 import AttendanceManagement from '../pages/admin/AttendanceManagement';
 import LeaveManagement from '../pages/admin/LeaveManagement';
 import PayrollManagement from '../pages/admin/PayrollManagement';
+import AdminConcerns from '../pages/admin/Concerns';
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -27,6 +29,7 @@ function AppRoutes() {
       <Route path="/employee/leave" element={<Leave userId={user?.uid} />} />
       <Route path="/employee/payroll" element={<Payroll />} />
       <Route path="/employee/profile" element={<Profile />} />
+      <Route path="/employee/concerns" element={<EmployeeConcerns />} />
     </Route>
     <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
       <Route path="/admin" element={<AdminDashboard />} />
@@ -35,6 +38,7 @@ function AppRoutes() {
       <Route path="/admin/attendance" element={<AttendanceManagement />} />
       <Route path="/admin/leave" element={<LeaveManagement />} />
       <Route path="/admin/payroll" element={<PayrollManagement />} />
+      <Route path="/admin/concerns" element={<AdminConcerns />} />
     </Route>
     <Route path="/" element={<Navigate to={home} replace />} />
     <Route path="*" element={<Navigate to={home} replace />} />

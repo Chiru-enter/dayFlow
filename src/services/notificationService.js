@@ -19,7 +19,7 @@ const USERS_COLLECTION = 'users';
 
 const notificationsCollection = collection(db, NOTIFICATIONS_COLLECTION);
 
-export const createNotification = async ({ userId, type, title, message }) => {
+export const createNotification = async ({ userId, type, title, message, link }) => {
   if (!userId) throw new Error('A notification recipient is required.');
   if (!title || !message) throw new Error('A notification title and message are required.');
 
@@ -28,6 +28,7 @@ export const createNotification = async ({ userId, type, title, message }) => {
     type: type || 'general',
     title,
     message,
+    ...(link ? { link } : {}),
     read: false,
     createdAt: serverTimestamp(),
   };

@@ -10,12 +10,16 @@ import { createNotification } from '../../services/notificationService';
 function AdminDashboard() {
   const [stats, setStats] = useState({
     totalEmployees: 0,
+    activeEmployees: 0,
     presentToday: 0,
+    lateToday: 0,
     onLeave: 0,
     absent: 0,
+    pendingLeave: 0,
   });
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [employeeMap, setEmployeeMap] = useState({});
+  const [departmentCounts, setDepartmentCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -28,10 +32,10 @@ function AdminDashboard() {
         users[doc.id] = doc.data();
       });
       setEmployeeMap(users);
-      return Object.keys(users).length;
+      return users;
     } catch (err) {
       console.error('Error fetching users:', err);
-      return 0;
+      return {};
     }
   };
 
@@ -61,11 +65,7 @@ function AdminDashboard() {
   // Fetch leave requests (pending and approved)
   const fetchLeaveRequests = async () => {
     try {
-      const q = query(
-        collection(db, 'leaveRequests'),
-        where('status', 'in', ['Pending', 'Approved'])
-      );
-      const snapshot = await getDocs(q);
+      const snapshot = await getDocs(collection(db, 'leaveRequests'));
       const requests = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -84,7 +84,7 @@ function AdminDashboard() {
         setLoading(true);
         setError(null);
 
-        const totalEmp = await fetchUsers();
+        const users = await fetchUsers();
         const attendanceToday = await fetchAttendanceToday();
         const leaveReqs = await fetchLeaveRequests();
 
@@ -107,15 +107,26 @@ function AdminDashboard() {
           }
         });
 
+        const employeeEntries = Object.entries(users).filter(([, employee]) => employee.role !== 'admin');
+        const departmentMap = {};
+        employeeEntries.forEach(([, employee]) => {
+          const department = employee.department || 'Unassigned';
+          departmentMap[department] = (departmentMap[department] || 0) + 1;
+        });
+        setDepartmentCounts(departmentMap);
+
         setStats({
-          totalEmployees: totalEmp,
+          totalEmployees: employeeEntries.length,
+          activeEmployees: employeeEntries.filter(([, employee]) => employee.active !== false).length,
           presentToday: present,
+          lateToday: Object.values(attendanceToday).filter((status) => status === 'Late').length,
           onLeave: onLeaveCount,
           absent: absent,
+          pendingLeave: leaveReqs.filter((request) => request.status?.toLowerCase() === 'pending').length,
         });
 
         // Get pending leave requests for display
-        const pending = leaveReqs.filter((r) => r.status === 'Pending');
+        const pending = leaveReqs.filter((r) => r.status?.toLowerCase() === 'pending');
         setLeaveRequests(pending);
 
         setLoading(false);
@@ -232,6 +243,11 @@ function AdminDashboard() {
           </article>
 
           <article className="stat-card">
+            <div className="stat-header"><span>Active Employees</span></div>
+            <div className="stat-value">{stats.activeEmployees}</div>
+          </article>
+
+          <article className="stat-card">
             <div className="stat-header">
               <span>Present Today</span>
             </div>
@@ -239,6 +255,16 @@ function AdminDashboard() {
             <div className="stat-detail" style={{ color: '#10b981' }}>
               On time
             </div>
+          </article>
+
+          <article className="stat-card">
+            <div className="stat-header"><span>Late Today</span></div>
+            <div className="stat-value">{stats.lateToday}</div>
+          </article>
+
+          <article className="stat-card">
+            <div className="stat-header"><span>Pending Leave</span></div>
+            <div className="stat-value">{stats.pendingLeave}</div>
           </article>
 
           <article className="stat-card">
@@ -259,6 +285,17 @@ function AdminDashboard() {
             <div className="stat-detail" style={{ color: '#ef4444' }}>
               No check-in
             </div>
+          </article>
+        </section>
+
+        <section className="content-grid" style={{ marginTop: '24px' }}>
+          <article className="panel">
+            <div className="panel-header"><div><p className="eyebrow">Attendance</p><h3>Today's attendance</h3></div></div>
+            {stats.totalEmployees === 0 ? <div className="empty-state">No employee data available.</div> : <div className="payroll-card"><div><span className="muted-label">Attendance percentage</span><strong>{Math.round((stats.presentToday / stats.totalEmployees) * 100)}%</strong></div><div><span className="muted-label">Present / absent</span><strong>{stats.presentToday} / {stats.absent}</strong></div></div>}
+          </article>
+          <article className="panel">
+            <div className="panel-header"><div><p className="eyebrow">People</p><h3>By department</h3></div></div>
+            {Object.keys(departmentCounts).length === 0 ? <div className="empty-state">No department data available.</div> : <div className="status-list">{Object.entries(departmentCounts).map(([department, count]) => <div className="list-row" key={department}><span>{department}</span><strong>{count}</strong></div>)}</div>}
           </article>
         </section>
 

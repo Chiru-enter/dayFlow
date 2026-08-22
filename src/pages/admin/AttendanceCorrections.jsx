@@ -1,0 +1,12 @@
+import { useEffect, useState } from 'react';
+import Navbar from '../../components/Navbar';
+import Sidebar from '../../components/Sidebar';
+import Button from '../../components/Button';
+import Loading from '../../components/Loading';
+import StatusBadge from '../../components/StatusBadge';
+import { getCorrections, decideCorrection } from '../../services/correctionService';
+import { getAllEmployees } from '../../services/userService';
+
+function AttendanceCorrections() { const [items, setItems] = useState(null); const [employees, setEmployees] = useState({}); const [error, setError] = useState(''); useEffect(() => { Promise.all([getCorrections(), getAllEmployees()]).then(([corrections, users]) => { setItems(corrections); setEmployees(Object.fromEntries(users.map((item) => [item.uid, item]))); }).catch(() => setError('Unable to load correction requests.')); }, []); const decide = async (item, status) => { try { await decideCorrection(item, status); setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, status } : entry)); } catch { setError('Unable to update correction request.'); } }; if (!items) return <Frame><Loading message="Loading correction requests..." /></Frame>; return <Frame><section className="panel"><div className="panel-header"><div><p className="eyebrow">Attendance</p><h3>Correction requests</h3></div></div>{error && <div className="empty-state error-state">{error}</div>}{items.length === 0 ? <div className="empty-state">No correction requests found.</div> : <div className="leave-history-list">{items.map((item) => <div className="leave-history-row" key={item.id}><div><strong>{employees[item.userId]?.name || item.userId}</strong><small>{item.date} | {item.requestedCheckIn || 'No check-in'} - {item.requestedCheckOut || 'No check-out'}</small><small>{item.reason}</small></div><div className="inline-actions"><StatusBadge label={item.status} tone={item.status === 'approved' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning'} />{item.status === 'pending' && <><Button onClick={() => decide(item, 'approved')}>Approve</Button><Button variant="secondary" onClick={() => decide(item, 'rejected')}>Reject</Button></>}</div></div>)}</div>}</section></Frame>; }
+function Frame({ children }) { return <div className="dashboard-shell"><Sidebar /><main className="main-panel"><Navbar title="Attendance Corrections" />{children}</main></div>; }
+export default AttendanceCorrections;

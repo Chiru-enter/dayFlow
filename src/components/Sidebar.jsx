@@ -6,6 +6,11 @@ const employeeItems = [
   { label: 'Attendance', path: '/employee/attendance' },
   { label: 'Leave', path: '/employee/leave' },
   { label: 'Payroll', path: '/employee/payroll' },
+  { label: 'Payslips', path: '/employee/payslips' },
+  { label: 'Overtime', path: '/employee/overtime' },
+  { label: 'Announcements', path: '/employee/announcements' },
+  { label: 'Holidays', path: '/employee/holidays' },
+  { label: 'Correction', path: '/employee/attendance-correction' },
   { label: 'Profile', path: '/employee/profile' },
   { label: 'Employee Concerns', path: '/employee/concerns' },
 ];
@@ -17,6 +22,11 @@ const adminItems = [
   { label: 'Leave', path: '/admin/leave' },
   { label: 'Payroll', path: '/admin/payroll' },
   { label: 'Employee Concerns', path: '/admin/concerns' },
+  { label: 'Payroll Review', path: '/admin/payroll/review' },
+  { label: 'Announcements', path: '/admin/announcements' },
+  { label: 'Holidays', path: '/admin/holidays' },
+  { label: 'Corrections', path: '/admin/attendance-corrections' },
+  { label: 'Profile', path: '/admin/profile' },
 ];
 
 function Sidebar({ items, title = 'Dayflow' }) {

@@ -16,6 +16,16 @@ import AttendanceManagement from '../pages/admin/AttendanceManagement';
 import LeaveManagement from '../pages/admin/LeaveManagement';
 import PayrollManagement from '../pages/admin/PayrollManagement';
 import AdminConcerns from '../pages/admin/Concerns';
+import AdminProfile from '../pages/admin/Profile';
+import Payslips from '../pages/employee/Payslips';
+import Overtime from '../pages/employee/Overtime';
+import EmployeeAnnouncements from '../pages/employee/Announcements';
+import EmployeeHolidays from '../pages/employee/Holidays';
+import AttendanceCorrection from '../pages/employee/AttendanceCorrection';
+import AdminAnnouncements from '../pages/admin/Announcements';
+import AdminHolidays from '../pages/admin/Holidays';
+import AttendanceCorrections from '../pages/admin/AttendanceCorrections';
+import PayrollReview from '../pages/admin/PayrollReview';
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -28,6 +38,11 @@ function AppRoutes() {
       <Route path="/employee/attendance" element={<Attendance userId={user?.uid} />} />
       <Route path="/employee/leave" element={<Leave userId={user?.uid} />} />
       <Route path="/employee/payroll" element={<Payroll />} />
+      <Route path="/employee/payslips" element={<Payslips />} />
+      <Route path="/employee/overtime" element={<Overtime />} />
+      <Route path="/employee/announcements" element={<EmployeeAnnouncements />} />
+      <Route path="/employee/holidays" element={<EmployeeHolidays />} />
+      <Route path="/employee/attendance-correction" element={<AttendanceCorrection />} />
       <Route path="/employee/profile" element={<Profile />} />
       <Route path="/employee/concerns" element={<EmployeeConcerns />} />
     </Route>
@@ -39,6 +54,11 @@ function AppRoutes() {
       <Route path="/admin/leave" element={<LeaveManagement />} />
       <Route path="/admin/payroll" element={<PayrollManagement />} />
       <Route path="/admin/concerns" element={<AdminConcerns />} />
+      <Route path="/admin/payroll/review" element={<PayrollReview />} />
+      <Route path="/admin/announcements" element={<AdminAnnouncements />} />
+      <Route path="/admin/holidays" element={<AdminHolidays />} />
+      <Route path="/admin/attendance-corrections" element={<AttendanceCorrections />} />
+      <Route path="/admin/profile" element={<AdminProfile />} />
     </Route>
     <Route path="/" element={<Navigate to={home} replace />} />
     <Route path="*" element={<Navigate to={home} replace />} />

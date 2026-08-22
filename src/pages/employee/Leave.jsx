@@ -159,6 +159,7 @@ function Leave() {
                   aria-invalid={!form.type}
                 >
                   <option>Paid Leave</option>
+                  <option>Half Day</option>
                   <option>Sick Leave</option>
                   <option>Unpaid Leave</option>
                 </select>

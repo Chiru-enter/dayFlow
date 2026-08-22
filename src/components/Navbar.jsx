@@ -1,4 +1,5 @@
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 function Navbar({
   title = 'Dashboard',
@@ -18,12 +19,7 @@ function Navbar({
       </div>
 
       <div className="employee-topbar-actions">
-        <button type="button" className="icon-button" aria-label="Notifications">
-          🔔
-        </button>
-        <button type="button" className="icon-button" aria-label="Messages">
-          ✦
-        </button>
+        <NotificationBell />
 
         <div className="profile-pill">
           <div className="avatar">{avatar}</div>

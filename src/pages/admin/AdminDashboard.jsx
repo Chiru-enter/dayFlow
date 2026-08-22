@@ -5,6 +5,7 @@ import Sidebar from '../../components/Sidebar';
 import Navbar from '../../components/Navbar';
 import StatusBadge from '../../components/StatusBadge';
 import Button from '../../components/Button';
+import { createNotification } from '../../services/notificationService';
 
 function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -131,12 +132,26 @@ function AdminDashboard() {
   // Handle approve/reject leave
   const handleLeaveAction = async (requestId, newStatus, comment = '') => {
     try {
+      const request = leaveRequests.find((item) => item.id === requestId);
       const docRef = doc(db, 'leaveRequests', requestId);
       await updateDoc(docRef, {
         status: newStatus,
         adminComment: comment,
         updatedAt: new Date().toISOString(),
       });
+
+      if (request?.userId) {
+        try {
+          await createNotification({
+            userId: request.userId,
+            type: newStatus === 'Approved' ? 'leave-approved' : 'leave-rejected',
+            title: newStatus === 'Approved' ? 'Leave Approved' : 'Leave Request Rejected',
+            message: `Your leave request for ${request.startDate} - ${request.endDate} has been ${newStatus.toLowerCase()}.`,
+          });
+        } catch (notificationError) {
+          console.error('Leave decision notification failed:', notificationError);
+        }
+      }
 
       // Update local state
       setLeaveRequests((prev) =>

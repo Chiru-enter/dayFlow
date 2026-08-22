@@ -6,6 +6,7 @@ import StatusBadge from '../../components/StatusBadge';
 import Loading from '../../components/Loading';
 import { useAuth } from '../../context/AuthContext';
 import { getMyLeaveRequests, submitLeaveRequest } from '../../services/leaveService';
+import { createNotificationsForAdmins } from '../../services/notificationService';
 
 const defaultForm = {
   type: 'Paid Leave',
@@ -86,6 +87,15 @@ function Leave() {
       setError('');
       setSuccessMessage('');
       await submitLeaveRequest(userId, form);
+      try {
+        await createNotificationsForAdmins({
+          type: 'leave-submitted',
+          title: 'New Leave Request',
+          message: `${user?.name || user?.displayName || user?.email || 'An employee'} has submitted a leave request.`,
+        });
+      } catch (notificationError) {
+        console.error('Leave request notification failed:', notificationError);
+      }
       setForm(defaultForm);
       setSuccessMessage('Leave request submitted successfully.');
       await loadLeaveRequests(userId);

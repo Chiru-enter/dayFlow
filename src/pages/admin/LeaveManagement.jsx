@@ -5,6 +5,7 @@ import Sidebar from '../../components/Sidebar';
 import Navbar from '../../components/Navbar';
 import StatusBadge from '../../components/StatusBadge';
 import Button from '../../components/Button';
+import { createNotification } from '../../services/notificationService';
 
 function LeaveManagement() {
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -100,6 +101,17 @@ function LeaveManagement() {
         adminComment: adminComment,
         updatedAt: new Date().toISOString(),
       });
+
+      try {
+        await createNotification({
+          userId: selectedRequest.userId,
+          type: newStatus === 'approved' ? 'leave-approved' : 'leave-rejected',
+          title: newStatus === 'approved' ? 'Leave Approved' : 'Leave Request Rejected',
+          message: `Your leave request for ${selectedRequest.startDate} - ${selectedRequest.endDate} has been ${newStatus}.`,
+        });
+      } catch (notificationError) {
+        console.error('Leave decision notification failed:', notificationError);
+      }
 
       // Update local state
       setLeaveRequests((prev) =>

@@ -1,7 +1,15 @@
+import { useAuth } from '../context/AuthContext';
+
 function Navbar({
   title = 'Dashboard',
-  user = { name: 'Maya Shah', role: 'HR Manager', avatar: 'MS' },
+  user: providedUser,
 }) {
+  const { user: authenticatedUser, loading } = useAuth();
+  const user = providedUser || authenticatedUser;
+  const displayName = loading ? 'Loading...' : user?.name || user?.displayName || 'Employee';
+  const displayRole = user?.role || 'Employee';
+  const avatar = displayName === 'Loading...' ? '...' : displayName.slice(0, 2).toUpperCase();
+
   return (
     <header className="employee-topbar">
       <div>
@@ -18,10 +26,10 @@ function Navbar({
         </button>
 
         <div className="profile-pill">
-          <div className="avatar">{user.avatar}</div>
+          <div className="avatar">{avatar}</div>
           <div>
-            <strong>{user.name}</strong>
-            <small>{user.role}</small>
+            <strong>{displayName}</strong>
+            <small>{displayRole}</small>
           </div>
         </div>
       </div>
